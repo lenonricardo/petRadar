@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "PetRadar",
+    "slug": "petradar",
+    "privacy": "public",
+    "sdkVersion": "36.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "petradar",
+      "config":{
+        "googleMapsApiKey": "AIzaSyACw6E2f6dC6qs9Iq0nadFoRmvKv73benE"
+      }
+    },
+    "description": ""
+  }
+}
