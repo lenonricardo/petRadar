@@ -1,7 +1,8 @@
 import { createAppContainer, createSwitchNavigator } from 'react-navigation'
 import {createDrawerNavigator, DrawerItems } from 'react-navigation-drawer'
 import React from 'react'
-import { Image, View, SafeAreaView, ScrollView, Dimensions } from 'react-native'
+import { Image, View, SafeAreaView, ScrollView, Text } from 'react-native'
+import { Divider } from 'react-native-paper';
 
 import Main from './pages/Main'
 import New from './pages/New'
@@ -23,9 +24,17 @@ class Routes extends React.Component{
 
 const CustomDrawerComponent = (props) => (
   <SafeAreaView style={{flex: 1}}>
-    <View style={{height:150, backgroundColor: 'white'}}>
-      <Image source={profile} style={{top:40, left: 80, height: 100, width: 100, borderRadius: 60}}/>
+    <View style={{height:150, backgroundColor: '#fff'}}>
+      <View style={{ justifyContent: 'space-between'}}>
+        <Image source={profile} style={{top:40, left: 10, height: 100, width: 100, borderRadius: 60}}/>
+        <View style={{left: 120, top: -30}}>
+          <Text style={{fontWeight: 'bold'}}>Olá, Lenon!</Text>
+          <Text>Nível 10</Text>
+          <Text>20 animais recuperados</Text>
+        </View>
+      </View>
     </View>
+    <Divider/>
     <ScrollView>
       <DrawerItems {...props}/>
     </ScrollView>

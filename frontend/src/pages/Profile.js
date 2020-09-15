@@ -45,8 +45,8 @@ export default class New extends Component {
                 <Image source={profile} style={styles.profile}/>
                 <Text style={styles.userName}>Lenon Mendes</Text>
                 <View style={{flexDirection: 'row', top: 90, alignItems: 'center'}}>
-                    <MaterialIcons style={styles.userLocation}  name="location-on" size={30} color="#71C7A6" />
-                    <Text style={styles.userLocation}> Irati, PR</Text>
+                    <MaterialIcons style={styles.userLocation}  name="games" size={30} color="#71C7A6" />
+                    <Text style={styles.userLocation}> Nível 10</Text>
                 </View>
             </View>
             

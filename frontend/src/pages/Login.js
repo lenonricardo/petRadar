@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ToastAndroid } from 'react-native';
 import api from '../services/api'
+import google from '../resources/google.png'
+import { HelperText } from 'react-native-paper';
 
 export default class Login extends React.Component {
     
@@ -41,6 +43,8 @@ export default class Login extends React.Component {
     
   }
 
+  
+
   render(){
     const navigation = this.props.navigation
     return (
@@ -76,8 +80,13 @@ export default class Login extends React.Component {
               this.LogarUsuario();
               
           }} style={styles.loginBtn}>
-            <Text style={styles.loginText}>LOGIN</Text>
+            <Text style={styles.loginText}>ENTRAR</Text>
             </TouchableOpacity>
+            {/* <TouchableOpacity
+             style={styles.loginGoogle}>
+                <Image source={google} />
+              
+            </TouchableOpacity> */}
             <TouchableOpacity  
             onPress={() => {
               //navegação
@@ -125,7 +134,7 @@ const styles = StyleSheet.create({
     height:50,
     alignItems:"center",
     justifyContent:"center",
-    marginTop:40,
+    marginTop:10,
     marginBottom:10
   },
   loginText:{
@@ -140,5 +149,16 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       width: '100%',
       top: -30
-  }
+  },
+  loginGoogle:{
+    // width:"80%",
+    // backgroundColor:"#ffffff",
+    borderRadius:10,
+    height:40,
+    // alignItems:"center",
+    // justifyContent:"center",
+    // marginTop:40,
+    marginBottom:10,
+    justifyContent: 'flex-start'
+  },
 });
