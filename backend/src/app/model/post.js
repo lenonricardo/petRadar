@@ -23,6 +23,10 @@ const PostSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  status: {
+    type: String,
+    require: true,
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

@@ -30,9 +30,7 @@ export default class New extends Component {
     title: '',
     description: '',
     checkedAnimal: 'dog',
-    checkedSituacao: 'perdido',
-    // hashtags: '',
-    // comment: '',
+    checkedSituacao: 'perdido'
   }
 
   handleSelectImage = async () => {
@@ -85,10 +83,7 @@ export default class New extends Component {
       data.append('longitude', currentRegion.longitude)
       data.append('animal', this.state.checkedAnimal)
       data.append('situacao', this.state.checkedSituacao)
-      // data.append('hashtags', this.state.hashtags);
-      // data.append('comment', this.state.comment)
-
-      // console.log(data)
+      data.append('status', '0')
 
       await api.post('posts', data,
       {
@@ -99,6 +94,13 @@ export default class New extends Component {
       });
 
       this.props.navigation.navigate('Home');
+
+      this.setState({ preview: null })
+      this.setState({ image:null })
+      this.setState({ title: '' })
+      this.setState({ description:'' })
+      this.setState({ checkedAnimal:'dog' })
+      this.setState({ checkedSituacao:'perdido' })
 
     } catch (error) {
       console.log(error)
@@ -197,7 +199,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 30,
     alignContent: 'center',
-    alignItems: "center"
+    alignItems: "center",
+    zIndex: -1
   },
   form:{
     flex: 1,

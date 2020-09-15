@@ -5,7 +5,7 @@ import { FAB, Portal, Provider } from 'react-native-paper';
 
 import Directions from "./directions";
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location'
-import { MaterialIcons, Entypo } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import Header from './header'
 import dog from '../resources/dog.png'
 import cat from '../resources/cat.png'
@@ -27,6 +27,7 @@ function Main({ navigation }) {
     const [currentRegion, setCurrentRegion] = useState(null)
     const [modalVisible, setModalVisible] = useState(false)
     const [state, setState] = useState({ open: false })
+    const [status, setStatus] = useState([0])
 
     const onStateChange = ({ open }) => setState({ open })
     const { open } = state;
@@ -84,6 +85,15 @@ function Main({ navigation }) {
     if (!currentRegion) {
         return null
     }
+
+    function handleGetGoogleMapDirections() {
+
+        console.log('chegou aqui')
+        setModalVisible(!modalVisible)
+
+        setCoord(coordAux)
+        
+      };
 
     function handleGetGoogleMapDirections() {
 
@@ -413,7 +423,7 @@ const styles = StyleSheet.create({
         top: -30
     },
     thumbUp:{
-        marginRight:120,
+        marginRight:180,
         color:'#7FBF7F'
     },
     thumbDown:{
