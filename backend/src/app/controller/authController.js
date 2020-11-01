@@ -40,7 +40,6 @@ router.post('/authenticate', async (req, res) => {
     const { email, password } = req.body
 
     console.log(req.body)
-    console.log(email)
 
     const user = await User.findOne({ email }).select('+password')
 
@@ -54,10 +53,13 @@ router.post('/authenticate', async (req, res) => {
         return res.status(400).send({ error: 'Invalid password ' })
 
     user.password = undefined
+    req.session.user = user.name
+    req.session.email = user.email
 
     res.send({
         user,
-        token: generateToken({ id: user.id })
+        token: generateToken({ id: user.id }),
+        usuario_logado: req.session.user     
     })
 })
 

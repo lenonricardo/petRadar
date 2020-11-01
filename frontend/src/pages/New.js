@@ -34,14 +34,16 @@ export default class New extends Component {
   }
 
   handleSelectImage = async () => {
-    let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();    
+    // let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();    
+    let permissionResult = await ImagePicker.requestCameraPermissionsAsync();    
 
     if (permissionResult.granted === false) {
       alert("É preciso dar permissão para acesso à camera!");
       return;
     }
 
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+    // let pickerResult = await ImagePicker.launchImageLibraryAsync();
+    let pickerResult = await ImagePicker.launchCameraAsync();
     let prefix
     let ext
     let fileName
@@ -69,8 +71,6 @@ export default class New extends Component {
 
   handleSubmit = async () => {
     try {
-      carregar = true
-
       const currentRegion = this.props.navigation.getParam('currentRegion')
 
       const data = new FormData();
@@ -109,7 +109,6 @@ export default class New extends Component {
 
   render() {
     const navigation = this.props.navigation
-    let carregar = false;
 
     return (
       
@@ -117,11 +116,6 @@ export default class New extends Component {
       <Header navigation={navigation}/>
       <View style={styles.container} behavior="height" enabled>
       
-        
-        <View>
-        <ActivityIndicator style={{top: 150}} animating={carregar} hidesWhenStopped={true} size="large" color="#71C7A6" />
-        </View>
-
         <KeyboardAvoidingView style={styles.form} behavior="height" enabled>
         <ScrollView>        
         <TouchableOpacity style={styles.selectButton} onPress={this.handleSelectImage}>
