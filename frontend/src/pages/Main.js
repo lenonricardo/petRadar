@@ -141,7 +141,7 @@ function Main({ navigation }) {
                         >
                             <View style={styles.modalNew}>
                                                     
-                                <Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.22:3333/files/${image}` }} />
+                                <Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.47:3333/files/${image}` }} />
                                 
                                 <Text style={styles.dogName}>{title}</Text>
                                 <Text style={styles.dogName}>{desc}</Text>

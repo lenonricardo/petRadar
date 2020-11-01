@@ -13,7 +13,8 @@ export default class Login extends React.Component {
 
   LogarUsuario = async () => {
     if(this.state.email == '' || this.state.password == '')
-      ToastAndroid.show("Preencha o email e a senha!", ToastAndroid.SHORT);
+      console.log('preencha o email e a senha')
+      // ToastAndroid.show("Preencha o email e a senha!", ToastAndroid.SHORT);
     else
     {
       try {
@@ -36,7 +37,7 @@ export default class Login extends React.Component {
 
       } catch (error) {
         // this.props.navigation.navigate('Login');
-        ToastAndroid.show("Usuário ou Senha Inválidos", ToastAndroid.SHORT);
+        // ToastAndroid.show("Usuário ou Senha Inválidos", ToastAndroid.SHORT);
         console.log(error)
       }
     }  

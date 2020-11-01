@@ -9,6 +9,7 @@ import New from './pages/New'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Cadastro from './pages/cadastro_usuario'
+import Chat from './pages/Chat'
 
 import profile from './resources/user.jpg'
 import { render } from 'react-dom'
@@ -47,6 +48,7 @@ const Drawer = createDrawerNavigator({
 Home:{ screen: Main},
 Perfil: { screen: Profile},
 Postar:{ screen: New},
+Chat:{ screen: Chat},
 Sair:{ screen: Login},
 },{
   contentComponent: CustomDrawerComponent,

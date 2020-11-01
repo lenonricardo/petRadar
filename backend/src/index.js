@@ -17,6 +17,19 @@ app.use(session({
     resave: false
 }))
 
+const server = require('http').createServer(app);
+const io = require('socket.io').listen(server);
+
+io.on('connection', socket => {
+   // console.log('a user connected :D');
+   // console.log(socket)
+   socket.on('chat message', msg => {
+     console.log(msg);
+     io.emit('chat message', msg);
+   });
+ });
+
 require('./app/controller/index')(app)
 
-app.listen(process.env.PORT || 3333)
+server.listen(3333)
+// app.listen(process.env.PORT || 3333)
