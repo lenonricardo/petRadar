@@ -21,9 +21,10 @@ const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
 io.on('connection', socket => {
-   // console.log('a user connected :D');
+   console.log('a user connected :D');
    // console.log(socket)
    socket.on('chat message', msg => {
+     console.log(socket.id)
      console.log(msg);
      io.emit('chat message', msg);
    });
