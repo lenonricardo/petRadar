@@ -1,37 +1,59 @@
 import React, { useState, useCallback, useEffect } from 'react'
+import { YellowBox, View} from 'react-native';
+import Header from './header'
 import { GiftedChat } from 'react-native-gifted-chat'
 import io from "socket.io-client";
+import session from '../services/session'
 
-export function Chat() {
+export function Chat({ navigation }) {
   const [messages, setMessages] = useState([]);
+  const [id, setId] = useState('');
+  const socket = io("http://192.168.100.7:3333", { transports: ["websocket"] });
+  const user = '_55'
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ])
+    // setId(Math.random().toString())
+    setId('1')
+
+    console.log(session[user])
+
+    YellowBox.ignoreWarnings(['Setting a timer']);
+
+    socket.on("chat message", msg => {
+      // setMessages(previousMessages => GiftedChat.append(previousMessages, msg))
+      setMessages((prevMsgs) => GiftedChat.append(prevMsgs, msg))
+      // this.setState({ chatMessages: [...this.state.chatMessages, msg] });
+    });
+
   }, [])
 
   const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+
+    messages.forEach((msg)=>{
+      console.log(msg)
+      const { text, user } = msg;
+      const message = {_id: Math.random().toString() , text, user, createdAt: new Date().getTime() };
+      socket.emit("chat message", message);
+    })
+
+    // setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
   }, [])
 
   return (
-    <GiftedChat
-      messages={messages}
-      onSend={messages => onSend(messages)}
-      user={{
-        _id: 1,
-      }}
-    />
+    <View style={{flex: 1}}>
+      <Header navigation={navigation} />
+      <View style={{flex: 1}}>
+        <GiftedChat
+          messages={messages}
+          onSend={messages => onSend(messages)}
+          user={{
+            _id: session[user].name
+
+          }
+          }
+        />
+      </View>
+    </View>
   )
 }
 

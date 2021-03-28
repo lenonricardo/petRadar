@@ -18,11 +18,11 @@ const router = express.Router();
                             type: 'Point',
                             coordinates: [longitude, latitude],
                         },
-                        //$maxDistance: 10000,                        
+                        $maxDistance: 10000,                        
                     }               
                 }
                 
-            })
+            }).populate("user")
 
             return res.json({posts})
         } catch(err){

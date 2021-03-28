@@ -17,7 +17,7 @@ const upload = multer(uploadConfig)
 
 router.get('/', async (req, res) => {
   try {
-    const posts = await Post.find().populate(['user', 'animal']); //populate para trazer as informações do usuário
+    const posts = await Post.find().populate(['user']); //populate para trazer as informações do usuário
 
     return res.send({ posts });
   } catch (err) {
@@ -51,7 +51,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     }
 
         const [name] = image.split('.') //separando nome e extensão
-        const filename = `${name}.jpg`        
+        const filename = `${name}.jpg`
 
         await sharp(req.file.path)
             .resize(500)
@@ -63,16 +63,16 @@ router.post('/', upload.single('image'), async (req, res) => {
 
         fs.unlinkSync(req.file.path) //deleta a imagem grande (original)
 
-    const post = await Post.create({ 
+    const post = await Post.create({
         title,
         description,
         location,
         animal,
-        situacao, 
+        situacao,
         status,
         // user: req.userId,
         // animal: req.animalId,
-        image: filename,        
+        image: filename,
       });
 
     // await Promise.all(animals.map(async animal => {
@@ -83,7 +83,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     //   post.animals.push(postAnimal);
     // }));
 
-    await post.save();   
+    await post.save();
 
     //return res.send({ post });
 
@@ -96,29 +96,26 @@ router.post('/', upload.single('image'), async (req, res) => {
 
 router.put('/:postId', async (req, res) => {
   try {
-    const { title, description, animals } = req.body;
+		console.log('bateu aqui')
+    const { description, aprovado, animal, image, location, situacao, title, status } = req.body;
+		console.log(description)
 
     const post = await Post.findByIdAndUpdate(req.params.postId, {
       title,
-      description
+      description,
+			aprovado,
+			animal,
+			image,
+			location,
+			situacao,
+			status
     }, { new: true });
-
-    post.animals = [];
-    await Animal.remove({ post: post._id });
-
-    await Promise.all(animals.map(async animal => {
-      const postAnimal = new Animal({ ...animal, post: post._id });
-
-      await postAnimal.save();
-
-      post.animals.push(postAnimal);
-    }));
 
     await post.save();
 
     return res.send({ post });
   } catch (err) {
-    
+
     return res.status(400).send({ error: 'Error updating post' });
   }
 });

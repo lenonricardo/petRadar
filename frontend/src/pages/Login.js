@@ -1,14 +1,23 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ToastAndroid } from 'react-native';
 import api from '../services/api'
-import google from '../resources/google.png'
-import { HelperText } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class Login extends React.Component {
-    
+
   state = {
     email:'',
     password:''
+  }
+
+  storeData = async (value) => {
+		try {
+			// console.log(value)
+			const jsonValue = JSON.stringify(value)
+			await AsyncStorage.setItem('@user', jsonValue)
+		} catch (e) {
+			console.log(e)
+		}
   }
 
   LogarUsuario = async () => {
@@ -23,33 +32,40 @@ export default class Login extends React.Component {
         // data.append('email', this.state.email)
         // data.append('password', this.state.password)
         // console.log(data)
-        var data = {'email': this.state.email, 'password': this.state.password}
+					var data = {'email': this.state.email, 'password': this.state.password}
 
-        await api.post('auth/authenticate', data,
-        {
-          headers:
-          {       
-            'Content-Type': 'application/json'
-          }       
-        })
-        
-        this.props.navigation.navigate('Home');
+					await api.post('auth/authenticate', data,
+					{
+						headers:
+						{
+							'Content-Type': 'application/json'
+						}
+					}).then((response) => {
+						// console.log(response.data.user)
+					this.storeData(response.data.user)
+					if (response.data.user.admin) {
+						this.props.navigation.navigate('Admin');
+					} else {
+						this.props.navigation.navigate('Home');
+					}
+				})
+
 
       } catch (error) {
         // this.props.navigation.navigate('Login');
         // ToastAndroid.show("Usuário ou Senha Inválidos", ToastAndroid.SHORT);
         console.log(error)
       }
-    }  
-    
+    }
+
   }
 
-  
+
 
   render(){
     const navigation = this.props.navigation
     return (
-        
+
       <View style={styles.container}>
         {/* <Text style={styles.logo}>petRadar</Text> */}
         <Image
@@ -58,17 +74,17 @@ export default class Login extends React.Component {
         />
         <View style={styles.inputs}>
             <View style={styles.inputView} >
-            <TextInput  
+            <TextInput
                 style={styles.inputText}
-                placeholder="Email..." 
+                placeholder="Email..."
                 placeholderTextColor="#999"
                 onChangeText={text => this.setState({email:text})}/>
             </View>
             <View style={styles.inputView} >
-            <TextInput  
+            <TextInput
                 secureTextEntry
                 style={styles.inputText}
-                placeholder="Senha..."                 
+                placeholder="Senha..."
                 placeholderTextColor="#999"
                 onChangeText={text => this.setState({password:text})}/>
             </View>
@@ -79,23 +95,23 @@ export default class Login extends React.Component {
              onPress={() => {
               //navegação
               this.LogarUsuario();
-              
+
           }} style={styles.loginBtn}>
             <Text style={styles.loginText}>ENTRAR</Text>
             </TouchableOpacity>
             {/* <TouchableOpacity
              style={styles.loginGoogle}>
                 <Image source={google} />
-              
+
             </TouchableOpacity> */}
-            <TouchableOpacity  
+            <TouchableOpacity
             onPress={() => {
               //navegação
               this.props.navigation.navigate('Cadastro');
           }}>
             <Text style={styles.loginText}>Cadastrar-se</Text>
             </TouchableOpacity>
-        </View>  
+        </View>
       </View>
     );
   }

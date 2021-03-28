@@ -8,10 +8,12 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.14.1",
+    "@react-native-community/checkbox": "^0.5.7",
     "@react-native-community/masked-view": "^0.1.6",
     "@react-navigation/drawer": "^5.3.1",
     "axios": "^0.19.2",
-    "expo": "~36.0.0",
+    "expo": "~37.0.0",
     "expo-image-picker": "~8.0.1",
     "expo-location": "~8.0.0",
     "react": "~16.9.0",
@@ -34,7 +36,7 @@
     "react-navigation": "^4.0.10",
     "react-navigation-drawer": "^2.4.4",
     "react-navigation-stack": "^2.0.16",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "2.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
