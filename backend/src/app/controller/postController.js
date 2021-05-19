@@ -38,7 +38,7 @@ router.get('/:postId', async (req, res) => {
 router.post('/', upload.single('image'), async (req, res) => {
   console.log('chegou aqui')
   try {
-    const { title, description, latitude, longitude, animal, situacao, status } = req.body;
+    const { title, description, latitude, longitude, animal, situacao, status, user } = req.body;
 
     console.log(req.body)
 
@@ -70,7 +70,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         animal,
         situacao,
         status,
-        // user: req.userId,
+        user,
         // animal: req.animalId,
         image: filename,
       });

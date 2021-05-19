@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import api from '../services/api'
 import * as ImagePicker from 'expo-image-picker'
 import cao from '../resources/cao.png'
@@ -7,6 +7,7 @@ import medalha from '../resources/medalha.png'
 import profile from '../resources/user.jpg'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Divider } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { View
        , StyleSheet
@@ -27,29 +28,43 @@ import Header from './header'
 
 export default class New extends Component {
 
-
-  state = {
-
-  }
+	state = {
+		user: {}
+	}
 
   render() {
     const navigation = this.props.navigation
+		console.log(this.state.user)
+
+		const userData = async () => {
+			try {
+				const jsonValue = await AsyncStorage.getItem('@user')
+				return jsonValue
+			} catch (e) {
+				console.log(e)
+			}
+		}
+
+		userData().then((value) => {
+			this.state.user = JSON.parse(value)
+		})
+		// if (Object.keys(this.state.user).length === 0) {
+		// }
 
     return (
-      
       <>
       <Header navigation={navigation}/>
       <View style={styles.container} >
         <ScrollView style={{width:'100%'}}>
             <View style={{alignItems: 'center', justifyContent: 'center'}} >
-                <Image source={profile} style={styles.profile}/>
-                <Text style={styles.userName}>Lenon Mendes</Text>
+                <Image source={{ uri: `http://192.168.100.7:3333/files/${this.state.user.image}` }} style={styles.profile}/>
+                <Text style={styles.userName}>{this.state.user.name}</Text>
                 <View style={{flexDirection: 'row', top: 90, alignItems: 'center'}}>
                     <MaterialIcons style={styles.userLocation}  name="games" size={30} color="#71C7A6" />
                     <Text style={styles.userLocation}> Nível 10</Text>
                 </View>
             </View>
-            
+
             <View style={styles.recompensa}>
                 <View style={styles.textoRecompensa}>
                     <Image source={cao} style={styles.cao}/>
@@ -64,11 +79,11 @@ export default class New extends Component {
 
             </View>
 
-        </ScrollView>             
+        </ScrollView>
       </View>
-      
+
   </>
-      
+
     )
   }
 }
@@ -81,7 +96,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: "center",
     zIndex: -1,
-    
+
   },
     userName: {
     fontWeight: 'bold',
@@ -107,8 +122,8 @@ cao:{
     , width: 80
     , borderRadius: 100
     , marginBottom: 10
-    , marginRight: 10   
-    , marginTop: 10 
+    , marginRight: 10
+    , marginTop: 10
     // , alignItems: 'flex-start'
 },
 recompensa:{
@@ -120,7 +135,7 @@ textoRecompensa:{
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between'
-    
+
     // flexDirection: 'row',
     // alignItems: 'center',
 

@@ -1,5 +1,6 @@
-import React, { useState, useEffect, Fragment } from 'react'
-import { StyleSheet, Image, Modal, View, Text, TouchableOpacity, Dimensions } from 'react-native'
+import React, { useState, useEffect, Fragment, useCallback } from 'react'
+import { useFocusEffect } from '@react-navigation/native';
+import { StyleSheet, Image, Modal, View, Text, TouchableOpacity, Dimensions, LogBox } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { FAB, Portal, Provider } from 'react-native-paper';
 
@@ -9,14 +10,12 @@ import { MaterialIcons } from '@expo/vector-icons'
 import Header from './header'
 import dog from '../resources/dog.png'
 import cat from '../resources/cat.png'
-import user from '../resources/user.jpg'
 import io from 'socket.io-client'
 import { Button, Snackbar } from 'react-native-paper';
 
 import api from '../services/api'
 
 function Main({ navigation }) {
-
 	const [posts, setPosts] = useState([])
 	const [image, setImage] = useState([])
 	const [title, setTitle] = useState([])
@@ -26,10 +25,15 @@ function Main({ navigation }) {
 	const [coord, setCoord] = useState([])
 	const [coordAux, setCoordAux] = useState([null])
 	const [currentRegion, setCurrentRegion] = useState(null)
+	const [postId, setPostId] = useState(null)
 	const [modalVisible, setModalVisible] = useState(false)
 	const [state, setState] = useState({ open: false })
 	const [status, setStatus] = useState([0])
   const [visible, setVisible] = useState(false);
+  const [region, setRegion] = useState({});
+  const [likes, setLikes] = useState({});
+  const [dislikes, setDislikes] = useState({});
+  const [user, setUser] = useState({});
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -38,7 +42,29 @@ function Main({ navigation }) {
 	const onStateChange = ({ open }) => setState({ open })
 	const { open } = state;
 
-	useEffect(() => {
+	useEffect(async () => {
+		LogBox.ignoreAllLogs()
+
+		navigation.addListener("didFocus", () => {
+			// setTimeout(() => {
+			// 	const post = navigation.getParam('publicacao')
+			// 	console.log(post)
+
+			// 	if (post) {
+			// 		setImage(post.image)
+			// 		setTitle(post.title)
+			// 		setDesc(post.description)
+			// 		setSituacao(post.situacao)
+			// 		setCoordAux({
+			// 			latitude: post.location.coordinates[1],
+			// 			longitude: post.location.coordinates[0]
+			// 		})
+
+			// 		setModalVisible(true)
+			// 	}
+			// }, 1000)
+    });
+
 		async function loadInitialPosion() {
 			const { granted } = await requestPermissionsAsync()
 
@@ -104,13 +130,28 @@ function Main({ navigation }) {
 	};
 
 	function handleGetGoogleMapDirections() {
-
-		console.log('chegou aqui')
 		setModalVisible(!modalVisible)
-
 		setCoord(coordAux)
-
 	};
+
+	async function handleLike () {
+		try {
+			const post = await api.put('likesDislikes/like/' + postId);
+			console.log(post.data)
+			setLikes(post.data.post.like)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	async function handleDislike () {
+		try {
+			const post = await api.put('likesDislikes/dislike/' + postId);
+			setDislikes(post.data.post.dislike)
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
 
 	return (
@@ -126,15 +167,21 @@ function Main({ navigation }) {
 									latitude: post.location.coordinates[1],
 									longitude: post.location.coordinates[0]
 								}} onPress={() => {
+									console.log(post)
 									setModalVisible(true);
 									setImage(post.image)
 									setTitle(post.title)
 									setDesc(post.description)
 									setSituacao(post.situacao)
+									setPostId(post._id)
+									setLikes(post.like)
+									setDislikes(post.dislike)
+									setPostId(post._id)
 									setCoordAux({
 										latitude: post.location.coordinates[1],
 										longitude: post.location.coordinates[0]
 									})
+									setUser(post.user)
 									console.log(post.image)
 								}}>
 								{/* <View style={styles.raio}></View> */}
@@ -165,17 +212,22 @@ function Main({ navigation }) {
 																		*/}
 
 										<View style={styles.thumb}>
-											<TouchableOpacity >
-												<MaterialIcons style={styles.thumbUp} name="thumb-up" size={30} color="#000" />
+											<TouchableOpacity onPress={handleLike} >
+												<View style={styles.like}>
+													<MaterialIcons style={styles.thumbUp} name="thumb-up" size={30} color="#000" />
+													<Text style={styles.likeText}>{likes}</Text>
+												</View>
 											</TouchableOpacity>
-											<TouchableOpacity >
-												<MaterialIcons style={styles.thumbDown} name="thumb-down" size={30} color="#000" />
+											<TouchableOpacity onPress={handleDislike} >
+												<View style={styles.like}>
+													<Text style={styles.dislikeText}>{dislikes}</Text>
+													<MaterialIcons style={styles.thumbDown} name="thumb-down" size={30} color="#000" />
+												</View>
 											</TouchableOpacity>
 										</View>
 
-										<Text style={styles.userName}>lenonricardo</Text>
-										<Text style={styles.userLocation}>Irati, PR</Text>
-										<Image style={styles.profileImage} resizeMode="cover" source={user} />
+										<Text style={styles.userName}>{user.name}</Text>
+										<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${user.image}` }} />
 										<Provider>
 											<Portal>
 												<FAB.Group style={styles.opcoes}
@@ -200,7 +252,7 @@ function Main({ navigation }) {
 															icon: 'chat-processing',
 															label: 'Conversar',
 															color: '#e26a6a',
-															onPress: () => console.log('Pressed notifications'),
+															onPress: () => { navigation.navigate('Chat'); setModalVisible(!modalVisible) },
 														},
 													]}
 													onStateChange={onStateChange}
@@ -216,7 +268,7 @@ function Main({ navigation }) {
 																				<MaterialIcons onPress={() => console.log(post.image)} name="chat" size={20} color="#FFF" />
 																		</TouchableOpacity> */}
 
-										<TouchableOpacity onPress={() => setModalVisible(!modalVisible)} style={styles.loadButton}>
+										<TouchableOpacity onPress={() => { setModalVisible(!modalVisible)} } style={styles.loadButton}>
 											<Text style={{ color: "#fff", fontWeight: "bold", fontSize: 20 }}>Fechar</Text>
 										</TouchableOpacity>
 									</View>
@@ -304,14 +356,14 @@ const styles = StyleSheet.create({
 	dogDesc: {
 		color: '#666',
 		marginTop: 5,
-		bottom: -50,
+		marginBottom: 20,
 		top: 10
 	},
 	userName: {
 		fontWeight: 'bold',
 		color: '#63af92',
-		fontSize: 16,
-		bottom: -50,
+		fontSize: 20,
+		bottom: -30,
 		top: 325,
 		left: 90,
 		position: "absolute"
@@ -449,13 +501,16 @@ const styles = StyleSheet.create({
 	},
 	thumb: {
 		flexDirection: 'row',
+		justifyContent: 'space-between',
+		width: '100%',
 		top: -30
 	},
 	thumbUp: {
-		marginRight: 180,
+		paddingRight: 10,
 		color: '#7FBF7F'
 	},
 	thumbDown: {
+		paddingLeft: 10,
 		color: '#D26A6A'
 	},
 	raio:
@@ -480,9 +535,19 @@ const styles = StyleSheet.create({
 		top: 140,
 		left: 40
 	},
-	opcoes: {
-
-	}
+	like: {
+		flexDirection: 'row'
+	},
+	likeText: {
+		color: '#7FBF7F',
+		marginBottom: 20,
+		top: 10
+	},
+	dislikeText: {
+		color: '#D26A6A',
+		marginBottom: 20,
+		top: 10
+	},
 })
 
 export default Main

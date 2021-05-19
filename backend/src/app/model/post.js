@@ -36,6 +36,16 @@ const PostSchema = new mongoose.Schema({
     ref: 'User',
     // require: true,
   },
+	like: {
+		type: Number,
+		require: false,
+		default: 0
+	},
+	dislike: {
+		type: Number,
+		require: false,
+		default: 0
+	},
   location:{
     type: PointSchema,
     index: '2dsphere'

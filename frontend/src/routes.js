@@ -1,7 +1,8 @@
-import { createAppContainer, createSwitchNavigator } from 'react-navigation'
+// import { createAppContainer } from '@react-navigation/native'
+import { createSwitchNavigator, createAppContainer } from 'react-navigation'
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer'
-import React from 'react'
-import { Image, View, SafeAreaView, ScrollView, Text } from 'react-native'
+import React, { useState } from 'react'
+import { Image, View, SafeAreaView, ScrollView, Text, LogBox } from 'react-native'
 import { Divider } from 'react-native-paper';
 
 import Main from './pages/Main'
@@ -10,18 +11,19 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 import Cadastro from './pages/cadastro_usuario'
 import Chat from './pages/Chat'
+import Galeria from './pages/Galeria'
 import Admin from './pages/Admin'
+import Adocao from './pages/Adocao'
+import Anuncio from './pages/Anuncio'
 
 import profile from './resources/user.jpg'
-import { render } from 'react-dom'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class Routes extends React.Component {
-	state = {
-		teste: '1'
-	}
 
 	componentDidMount () {
+		console.log('teste')
+		LogBox.ignoreAllLogs()
 		const data = userData()
 		this.state.image = data.image
 	}
@@ -37,22 +39,31 @@ class Routes extends React.Component {
 const userData = async () => {
 	try {
 		const jsonValue = await AsyncStorage.getItem('@user')
-		console.log(jsonValue)
-		return jsonValue != null ? JSON.parse(jsonValue) : null;
+		return jsonValue
 	} catch (e) {
 		console.log(e)
 	}
 }
 
-const CustomDrawerComponent = (props) => (
+const CustomDrawerComponent = (props) => {
+	const [user, setUser] = useState({})
+
+	if (Object.keys(user).length === 0) {
+		userData().then((value) => {
+			setUser(JSON.parse(value))
+		})
+	}
+
+	return (
+
 	<SafeAreaView style={{ flex: 1 }}>
 		<View style={{ height: 150, backgroundColor: '#fff' }}>
 			<View style={{ justifyContent: 'space-between' }}>
-				<Image source={profile} style={{ top: 40, left: 10, height: 100, width: 100, borderRadius: 60 }} />
+				<Image source={{ uri: `http://192.168.100.7:3333/files/${user.image}` }} style={{ top: 40, left: 10, height: 100, width: 100, borderRadius: 60 }} />
 				<View style={{ left: 120, top: -30 }}>
-					<Text style={{ fontWeight: 'bold' }}>Olá, Lenon!</Text>
-					<Text>Nível 10</Text>
-					<Text>20 animais recuperados</Text>
+					<Text style={{ fontWeight: 'bold' }}>Olá, {user.name}!</Text>
+					<Text>Nível {!user.nivel ? '1' : user.nivel}</Text>
+					<Text>{!user.recuperados ? '0' : user.recuperados} animais recuperados</Text>
 				</View>
 			</View>
 		</View>
@@ -62,14 +73,32 @@ const CustomDrawerComponent = (props) => (
 		</ScrollView>
 
 	</SafeAreaView>
-)
+	)
+}
 
 const Drawer = createDrawerNavigator({
-	// Login: {screen: Login},
 	Home: { screen: Main },
 	Perfil: { screen: Profile },
 	Postar: { screen: New },
 	Chat: { screen: Chat },
+	Galeria: {
+		screen: Galeria,
+		navigationOptions:{
+			title: 'Animais Próximos'
+		}
+	},
+	Adocao: {
+		screen: Adocao,
+		navigationOptions:{
+			title: 'Adoção'
+		}
+	},
+	Anuncio: {
+		screen: Anuncio,
+		navigationOptions:{
+			title: 'Anunciar'
+		}
+	},
 	Sair: { screen: Login },
 }, {
 	contentComponent: CustomDrawerComponent,
@@ -81,9 +110,7 @@ const Drawer = createDrawerNavigator({
 		navigationOptions: {
 		},
 		drawerPosition: 'left',
-		// drawerLabel: 'Home',
 		drawerBackgroundColor: '#fff',
-		// tintColor: '#71C7A6',
 
 	})
 
@@ -105,44 +132,6 @@ const AppNavigator = createSwitchNavigator(
 	},
 );
 
-
-
 const App = createAppContainer(AppNavigator);
-
-
-// const Routes = createAppContainer(
-//     createStackNavigator({
-//         Main: {
-//             screen: Main,
-//             navigationOptions:{
-//                 title: 'petRadar'
-//             }
-//         },
-//         Profile:{
-//             screen: Profile,
-//             navigationOptions:{
-//                 title: 'Perfil'
-//             }
-//         },
-//         New:{
-//             screen: New,
-//             navigationOptions:{
-//                 title: 'New',
-//                 headerTitle: 'Nova publicação'
-//             }
-//         }
-//     }, {
-//         defaultNavigationOptions:{
-//             headerTintColor: '#fff',
-//             headerStyle:{
-//                 backgroundColor: '#71C7A6',
-
-//             },
-//             headerBackTitleVisible: false,
-//             headerTitle: <Image source={logo}/>,
-//             headerBackTitle: null,
-//         }
-//     })
-// )
 
 export default App

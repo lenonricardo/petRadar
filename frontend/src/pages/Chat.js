@@ -4,6 +4,7 @@ import Header from './header'
 import { GiftedChat } from 'react-native-gifted-chat'
 import io from "socket.io-client";
 import session from '../services/session'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function Chat({ navigation }) {
   const [messages, setMessages] = useState([]);
@@ -11,11 +12,10 @@ export function Chat({ navigation }) {
   const socket = io("http://192.168.100.7:3333", { transports: ["websocket"] });
   const user = '_55'
 
-  useEffect(() => {
-    // setId(Math.random().toString())
-    setId('1')
-
-    console.log(session[user])
+  useEffect(async () => {
+		const jsonValue = await AsyncStorage.getItem('@user')
+		const user = JSON.parse(jsonValue)
+    setId(user._id)
 
     YellowBox.ignoreWarnings(['Setting a timer']);
 
@@ -47,7 +47,7 @@ export function Chat({ navigation }) {
           messages={messages}
           onSend={messages => onSend(messages)}
           user={{
-            _id: session[user].name
+            _id: id
 
           }
           }

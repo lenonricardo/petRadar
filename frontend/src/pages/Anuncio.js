@@ -5,7 +5,6 @@ import { RadioButton, Portal, Dialog, Button, Provider as PaperProvider } from '
 import dog from '../resources/dog.png'
 import cat from '../resources/cat.png'
 import { MaterialIcons } from '@expo/vector-icons'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
 	View
@@ -74,8 +73,6 @@ export default class New extends Component {
 	handleSubmit = async () => {
 		try {
 			const currentRegion = this.props.navigation.getParam('currentRegion')
-			const user = await AsyncStorage.getItem('@user')
-
 
 			const data = new FormData();
 			console.log(this.state.image)
@@ -89,7 +86,6 @@ export default class New extends Component {
 			data.append('situacao', this.state.checkedSituacao)
 			data.append('status', '0')
 			data.append('aprovado', false)
-			data.append('user', JSON.parse(user)._id)
 
 			await api.post('posts', data,
 				{
