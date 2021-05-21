@@ -84,7 +84,7 @@ export default class New extends Component {
 			data.append('longitude', currentRegion.longitude)
 			data.append('animal', this.state.checkedAnimal)
 			data.append('situacao', this.state.checkedSituacao)
-			data.append('status', '0')
+			data.append('status', false)
 			data.append('aprovado', false)
 
 			await api.post('posts', data,

@@ -24,8 +24,8 @@ const PostSchema = new mongoose.Schema({
     require: true,
   },
   status: {
-    type: String,
-    require: true,
+    type: Boolean,
+		default: false
   },
 	aprovado: {
 		type: Boolean,

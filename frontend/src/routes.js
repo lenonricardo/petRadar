@@ -47,12 +47,9 @@ const userData = async () => {
 
 const CustomDrawerComponent = (props) => {
 	const [user, setUser] = useState({})
-
-	if (Object.keys(user).length === 0) {
-		userData().then((value) => {
-			setUser(JSON.parse(value))
-		})
-	}
+	userData().then((value) => {
+		setUser(JSON.parse(value))
+	})
 
 	return (
 
@@ -63,7 +60,7 @@ const CustomDrawerComponent = (props) => {
 				<View style={{ left: 120, top: -30 }}>
 					<Text style={{ fontWeight: 'bold' }}>Olá, {user.name}!</Text>
 					<Text>Nível {!user.nivel ? '1' : user.nivel}</Text>
-					<Text>{!user.recuperados ? '0' : user.recuperados} animais recuperados</Text>
+					<Text>{user.recuperados} animais recuperados</Text>
 				</View>
 			</View>
 		</View>

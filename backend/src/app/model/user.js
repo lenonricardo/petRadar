@@ -32,18 +32,29 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	 },
+	 nivel: {
+		type: Number,
+		default: 1
+	 },
+	 cidade: {
+		type: String
+	 },
+	 recuperados: {
+		type: Number,
+		default: 0
+	 },
     createdAt:{
         type: Date,
         default: Date.now,
     }
 })
 
-UserSchema.pre('save', async function(next){
-    const hash = await bcrypt.hash(this.password, 10)
-    this.password = hash
+// UserSchema.pre('save', async function(next){
+//     const hash = await bcrypt.hash(this.password, 10)
+//     this.password = hash
 
-    next()
-})
+//     next()
+// })
 
 const User = mongoose.model('User', UserSchema)
 module.exports = User;

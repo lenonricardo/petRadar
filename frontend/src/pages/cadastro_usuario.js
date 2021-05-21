@@ -21,8 +21,7 @@ export default class New extends Component {
 		nome: '',
 		email: '',
 		senha: '',
-		cidade: '',
-		admin: true
+		cidade: ''
 	}
 
 	handleSelectImage = async () => {
@@ -70,6 +69,7 @@ export default class New extends Component {
 			data.append('email', this.state.email)
 			data.append('password', this.state.senha)
 			data.append('image', this.state.image)
+			data.append('cidade', this.state.cidade)
 
 			await api.post('/auth/register', data,
 				{
@@ -115,7 +115,7 @@ export default class New extends Component {
 								autoCapitalize="none"
 								placeholder="Cidade"
 								placeholderTextColor="#999"
-								onChangeText={nome => this.setState({ nome })}
+								onChangeText={cidade => this.setState({ cidade })}
 							/>
 							<TextInput
 								style={styles.input}

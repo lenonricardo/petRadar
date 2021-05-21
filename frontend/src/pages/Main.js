@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Fragment, useCallback } from 'react'
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, Image, Modal, View, Text, TouchableOpacity, Dimensions, LogBox } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
-import { FAB, Portal, Provider } from 'react-native-paper';
+import { FAB, Portal, Provider, Dialog, Button, Snackbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Directions from "./directions";
 import { requestPermissionsAsync, getCurrentPositionAsync } from 'expo-location'
@@ -10,8 +10,6 @@ import { MaterialIcons } from '@expo/vector-icons'
 import Header from './header'
 import dog from '../resources/dog.png'
 import cat from '../resources/cat.png'
-import io from 'socket.io-client'
-import { Button, Snackbar } from 'react-native-paper';
 
 import api from '../services/api'
 
@@ -27,23 +25,42 @@ function Main({ navigation }) {
 	const [currentRegion, setCurrentRegion] = useState(null)
 	const [postId, setPostId] = useState(null)
 	const [modalVisible, setModalVisible] = useState(false)
+	const [dialogVisible, setDialogVisible] = useState(false)
 	const [state, setState] = useState({ open: false })
-	const [status, setStatus] = useState([0])
+	const [status, setStatus] = useState(false)
   const [visible, setVisible] = useState(false);
   const [region, setRegion] = useState({});
   const [likes, setLikes] = useState({});
   const [dislikes, setDislikes] = useState({});
   const [user, setUser] = useState({});
+  const [userLogado, setUserLogado] = useState({});
+  const [nivelDialog, setNivelDialog] = useState(false);
 
   const onToggleSnackBar = () => setVisible(!visible);
 
   const onDismissSnackBar = () => setVisible(false);
+
+	const userData = async () => {
+		try {
+			const jsonValue = await AsyncStorage.getItem('@user')
+			return jsonValue
+		} catch (e) {
+			console.log(e)
+		}
+	}
+
 
 	const onStateChange = ({ open }) => setState({ open })
 	const { open } = state;
 
 	useEffect(async () => {
 		LogBox.ignoreAllLogs()
+
+		if (Object.keys(userLogado).length === 0) {
+			userData().then((value) => {
+				setUserLogado(JSON.parse(value))
+			})
+		}
 
 		navigation.addListener("didFocus", () => {
 			// setTimeout(() => {
@@ -153,6 +170,28 @@ function Main({ navigation }) {
 		}
 	}
 
+	async function handleEncontrado () {
+		try {
+			setDialogVisible(false)
+			setModalVisible(false)
+			const post = await api.put('likesDislikes/encontrado/' + postId);
+			const respUser = await api.put('likesDislikes/nivel/' + userLogado._id);
+			const dataUser = respUser.data.user
+			console.log(dataUser.nivel)
+
+			setUserLogado(dataUser)
+			if (dataUser.nivel > 1) {
+				setNivelDialog(true)
+			}
+
+			const jsonValue = JSON.stringify(dataUser)
+			await AsyncStorage.setItem('@user', jsonValue)
+			loadPosts()
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
 
 	return (
 		<>
@@ -160,7 +199,7 @@ function Main({ navigation }) {
 
 				{posts.map(post => {
 					return (
-						post.aprovado && (
+						post.aprovado && !post.status &&  (
 							<Marker
 								key={post._id}
 								coordinate={{
@@ -199,17 +238,10 @@ function Main({ navigation }) {
 
 								>
 									<View style={styles.modalNew}>
-
 										<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${image}` }} />
-
 										<Text style={styles.dogName}>{title}</Text>
 										<Text style={styles.dogName}>{desc}</Text>
 										<Text style={styles.dogDesc}>{situacao}</Text>
-										{/* <TouchableOpacity style={styles.location} onPress={handleGetGoogleMapDirections} >
-																						<MaterialIcons name="my-location" color={'#71C7A6'} size={40} />
-																		</TouchableOpacity>
-
-																		*/}
 
 										<View style={styles.thumb}>
 											<TouchableOpacity onPress={handleLike} >
@@ -227,6 +259,7 @@ function Main({ navigation }) {
 										</View>
 
 										<Text style={styles.userName}>{user.name}</Text>
+										<Text style={styles.userLocation}>{user.cidade}</Text>
 										<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${user.image}` }} />
 										<Provider>
 											<Portal>
@@ -240,7 +273,13 @@ function Main({ navigation }) {
 															icon: 'checkbox-marked-circle',
 															label: 'Marcar como Encontrado',
 															color: '#7FBF7F',
-															onPress: () => console.log('Pressed star'),
+															onPress: () => {
+																if (user._id != userLogado._id) {
+																	setDialogVisible(true)
+																} else {
+																	handleEncontrado()
+																}
+															},
 														},
 														{
 															icon: 'crosshairs-gps',
@@ -263,12 +302,19 @@ function Main({ navigation }) {
 													}}
 												/>
 											</Portal>
+											<Portal>
+												<Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false) }>
+													<Dialog.Title>Ação não permitida</Dialog.Title>
+													<Dialog.Content>
+														<Text style={styles.dogDesc}>Somente o autor da publicação pode marcar o Animal como encontrado!</Text>
+													</Dialog.Content>
+													<Dialog.Actions>
+														<Button onPress={() =>  setDialogVisible(false)}>Ok, entendi</Button>
+													</Dialog.Actions>
+												</Dialog>
+											</Portal>
 										</Provider>
-										{/* <TouchableOpacity style={styles.chatButton}>
-																				<MaterialIcons onPress={() => console.log(post.image)} name="chat" size={20} color="#FFF" />
-																		</TouchableOpacity> */}
-
-										<TouchableOpacity onPress={() => { setModalVisible(!modalVisible)} } style={styles.loadButton}>
+										<TouchableOpacity onPress={() => { setNivelDialog(!modalVisible)} } style={styles.loadButton}>
 											<Text style={{ color: "#fff", fontWeight: "bold", fontSize: 20 }}>Fechar</Text>
 										</TouchableOpacity>
 									</View>
@@ -281,12 +327,20 @@ function Main({ navigation }) {
 				<Marker coordinate={{ latitude: latitudeInicial, longitude: longitudeInicial }}>
 					<MaterialIcons name="person-pin-circle" size={50} color="#71C7A6" />
 				</Marker>
-
-				{/* <MapViewDirections
-                    origin={{latitude: latitudeInicial, longitude: longitudeInicial}}
-                    destination={{latitude: 37.3317876, longitude:  -122.0054812}}
-                    apikey={GOOGLE_MAPS_APIKEY}
-                />                      */}
+				<Provider>
+					<Portal>
+						<Dialog visible={nivelDialog} onDismiss={() => setNivelDialog(false) }>
+							<Dialog.Title>Parabéns!</Dialog.Title>
+							<Dialog.Content>
+								<Text style={styles.dogDesc}>Você ajudou a recuperar {userLogado.recuperados} animais</Text>
+								<Text style={styles.dogDesc}>e subiu para o nível {userLogado.nivel}.</Text>
+							</Dialog.Content>
+							<Dialog.Actions>
+								<Button onPress={() =>  setNivelDialog(false)}>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					</Portal>
+				</Provider>
 
 				{coord && (
 					<Directions
@@ -294,13 +348,9 @@ function Main({ navigation }) {
 						origin={{ latitude: latitudeInicial, longitude: longitudeInicial }} />
 
 				)}
-
-
 			</MapView>
 
-
 			<Header navigation={navigation} />
-
 
 			<TouchableOpacity onPress={() => {
 				//navegação
@@ -362,8 +412,8 @@ const styles = StyleSheet.create({
 	userName: {
 		fontWeight: 'bold',
 		color: '#63af92',
-		fontSize: 20,
-		bottom: -30,
+		fontSize: 16,
+		bottom: -50,
 		top: 325,
 		left: 90,
 		position: "absolute"

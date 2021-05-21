@@ -24,7 +24,7 @@ function generateToken(params = {}) {
 router.post('/register', upload.single('image'), async (req, res) => {
 
 	try {
-		const { email, name, password } = req.body;
+		const { email, name, password, cidade } = req.body;
 		if (await User.findOne({ email }))
 			return res.status(400).send({ error: 'User already exists' })
 
@@ -49,6 +49,7 @@ router.post('/register', upload.single('image'), async (req, res) => {
 			email,
 			password,
 			image: filename,
+			cidade
 		})
 		console.log(user)
 
