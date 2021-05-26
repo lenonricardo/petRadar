@@ -5,6 +5,7 @@ import { RadioButton, Portal, Dialog, Button, Provider as PaperProvider } from '
 import dog from '../resources/dog.png'
 import cat from '../resources/cat.png'
 import { MaterialIcons } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {
 	View
@@ -28,22 +29,22 @@ export default class New extends Component {
 		title: '',
 		description: '',
 		checkedAnimal: 'dog',
-		checkedSituacao: 'perdido',
-		visible: false
+		porte: '',
+		raca: ''
 	}
 
 
 	handleSelectImage = async () => {
 		// let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
-		let permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+		let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
 
 		if (permissionResult.granted === false) {
 			alert("É preciso dar permissão para acesso à camera!");
 			return;
 		}
 
-		// let pickerResult = await ImagePicker.launchImageLibraryAsync();
-		let pickerResult = await ImagePicker.launchCameraAsync();
+		let pickerResult = await ImagePicker.launchImageLibraryAsync();
+		// let pickerResult = await ImagePicker.launchCameraAsync();
 		let prefix
 		let ext
 		let fileName
@@ -73,6 +74,7 @@ export default class New extends Component {
 	handleSubmit = async () => {
 		try {
 			const currentRegion = this.props.navigation.getParam('currentRegion')
+			const user = await AsyncStorage.getItem('@user')
 
 			const data = new FormData();
 			console.log(this.state.image)
@@ -80,14 +82,12 @@ export default class New extends Component {
 			data.append('image', this.state.image)
 			data.append('title', this.state.title)
 			data.append('description', this.state.description)
-			data.append('latitude', currentRegion.latitude)
-			data.append('longitude', currentRegion.longitude)
 			data.append('animal', this.state.checkedAnimal)
-			data.append('situacao', this.state.checkedSituacao)
-			data.append('status', false)
-			data.append('aprovado', false)
+			data.append('porte', this.state.porte)
+			data.append('raca', this.state.raca)
+			data.append('user', JSON.parse(user)._id)
 
-			await api.post('posts', data,
+			await api.post('adocao', data,
 				{
 					headers:
 					{
@@ -95,7 +95,7 @@ export default class New extends Component {
 					}
 				});
 
-			this.props.navigation.navigate('Home', {
+			this.props.navigation.navigate('Adocao', {
 				showMessage: true
 			});
 
@@ -104,8 +104,8 @@ export default class New extends Component {
 			this.setState({ title: '' })
 			this.setState({ description: '' })
 			this.setState({ checkedAnimal: 'dog' })
-			this.setState({ checkedSituacao: 'perdido' })
-			this.setState({ visible: false })
+			this.setState({ porte: '' })
+			this.setState({ raca: '' })
 
 		} catch (error) {
 			console.log(error)
@@ -125,7 +125,7 @@ export default class New extends Component {
 						<ScrollView>
 							<TouchableOpacity style={styles.selectButton} onPress={this.handleSelectImage}>
 								<MaterialIcons name="camera-alt" size={24} color="#666" />
-								<Text style={styles.selectButtonText}> Tirar Foto</Text>
+								<Text style={styles.selectButtonText}> Selecionar Foto</Text>
 							</TouchableOpacity>
 
 							{this.state.preview && <Image style={styles.preview} source={this.state.preview} />}
@@ -134,10 +134,37 @@ export default class New extends Component {
 								style={styles.input}
 								autoCorrect={false}
 								autoCapitalize="none"
+								placeholder="Título"
+								placeholderTextColor="#999"
+								value={this.state.title}
+								onChangeText={title => this.setState({ title })}
+							/>
+							<TextInput
+								style={styles.input}
+								autoCorrect={false}
+								autoCapitalize="none"
 								placeholder="Descrição"
 								placeholderTextColor="#999"
 								value={this.state.description}
 								onChangeText={description => this.setState({ description })}
+							/>
+							<TextInput
+								style={styles.input}
+								autoCorrect={false}
+								autoCapitalize="none"
+								placeholder="Porte"
+								placeholderTextColor="#999"
+								value={this.state.porte}
+								onChangeText={porte => this.setState({ porte })}
+							/>
+							<TextInput
+								style={styles.input}
+								autoCorrect={false}
+								autoCapitalize="none"
+								placeholder="Raça"
+								placeholderTextColor="#999"
+								value={this.state.raca}
+								onChangeText={raca => this.setState({ raca })}
 							/>
 
 							<View style={styles.check}>
@@ -159,26 +186,6 @@ export default class New extends Component {
 								</TouchableOpacity>
 							</View>
 
-							<View style={styles.check}>
-								<TouchableOpacity style={styles.check} onPress={() => this.setState({ checkedSituacao: 'perdido' })}>
-
-									<RadioButton
-										value="perdido"
-										status={this.state.checkedSituacao === 'perdido' ? 'checked' : 'unchecked'}
-										onPress={() => this.setState({ checkedSituacao: 'perdido' })}
-									/>
-									<Text style={styles.situacao}>Perdido</Text>
-								</TouchableOpacity>
-								<TouchableOpacity style={styles.check} onPress={() => this.setState({ checkedSituacao: 'abandonado' })}>
-									<RadioButton
-										value="abandonado"
-										status={this.state.checkedSituacao === 'abandonado' ? 'checked' : 'unchecked'}
-										onPress={() => this.setState({ checkedSituacao: 'abandonado' })}
-									/>
-									<Text style={styles.situacao}>Abandonado</Text>
-								</TouchableOpacity>
-							</View>
-
 							<TouchableOpacity style={styles.shareButton} onPress={() => this.setState({ visible: true })}>
 								<Text style={styles.shareButtonText}>Compartilhar</Text>
 							</TouchableOpacity>
@@ -186,7 +193,7 @@ export default class New extends Component {
 					</KeyboardAvoidingView>
 
 				</View>
-
+{/*
 				<Portal>
 					<Dialog visible={this.state.visible} onDismiss={() => this.setState({ visible: false })}>
 						<Dialog.Title>Nova Publicação</Dialog.Title>
@@ -198,7 +205,7 @@ export default class New extends Component {
 							<Button onPress={() =>  this.handleSubmit()}>Ok, entendi</Button>
 						</Dialog.Actions>
 					</Dialog>
-				</Portal>
+				</Portal> */}
 			</PaperProvider>
 
 		)

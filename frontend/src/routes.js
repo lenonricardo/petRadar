@@ -56,7 +56,7 @@ const CustomDrawerComponent = (props) => {
 	<SafeAreaView style={{ flex: 1 }}>
 		<View style={{ height: 150, backgroundColor: '#fff' }}>
 			<View style={{ justifyContent: 'space-between' }}>
-				<Image source={{ uri: `http://192.168.100.7:3333/files/${user.image}` }} style={{ top: 40, left: 10, height: 100, width: 100, borderRadius: 60 }} />
+				<Image source={{ uri: `http://192.168.100.38:3333/files/${user.image}` }} style={{ top: 40, left: 10, height: 100, width: 100, borderRadius: 60 }} />
 				<View style={{ left: 120, top: -30 }}>
 					<Text style={{ fontWeight: 'bold' }}>Olá, {user.name}!</Text>
 					<Text>Nível {!user.nivel ? '1' : user.nivel}</Text>

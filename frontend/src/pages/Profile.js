@@ -32,10 +32,8 @@ export default class New extends Component {
 		user: {}
 	}
 
-  render() {
-    const navigation = this.props.navigation
-		console.log(this.state.user)
 
+	componentDidMount() {
 		const userData = async () => {
 			try {
 				const jsonValue = await AsyncStorage.getItem('@user')
@@ -46,10 +44,12 @@ export default class New extends Component {
 		}
 
 		userData().then((value) => {
-			this.state.user = JSON.parse(value)
+			this.setState({ user: JSON.parse(value) })
 		})
-		// if (Object.keys(this.state.user).length === 0) {
-		// }
+	}
+
+  render() {
+    const navigation = this.props.navigation
 
     return (
       <>
@@ -57,27 +57,22 @@ export default class New extends Component {
       <View style={styles.container} >
         <ScrollView style={{width:'100%'}}>
             <View style={{alignItems: 'center', justifyContent: 'center'}} >
-                <Image source={{ uri: `http://192.168.100.7:3333/files/${this.state.user.image}` }} style={styles.profile}/>
+                <Image source={{ uri: `http://192.168.100.38:3333/files/${this.state.user.image}` }} style={styles.profile}/>
                 <Text style={styles.userName}>{this.state.user.name}</Text>
                 <View style={{flexDirection: 'row', top: 90, alignItems: 'center'}}>
                     <MaterialIcons style={styles.userLocation}  name="games" size={30} color="#71C7A6" />
-                    <Text style={styles.userLocation}> Nível 10</Text>
+                    <Text style={styles.userLocation}> Nível {this.state.user.nivel}</Text>
                 </View>
             </View>
 
-            <View style={styles.recompensa}>
+            {this.state.user.recuperados > 0 &&
+						<View style={styles.recompensa}>
                 <View style={styles.textoRecompensa}>
                     <Image source={cao} style={styles.cao}/>
-                    <Text style={{width: 300, fontWeight: 'bold', color: '#63af92'}}>Parabéns, você ajudou a recuperar 10 cachorrinhos! :)</Text>
+                    <Text style={{width: 300, fontWeight: 'bold', color: '#63af92'}}>Parabéns, você ajudou a recuperar {this.state.user.recuperados} animais! :)</Text>
                 </View>
                 <Divider />
-
-                <View style={styles.textoRecompensa}>
-                    <Image source={gato} style={styles.cao}/>
-                    <Text style={{width: 300, fontWeight: 'bold', color: '#63af92'}}>Parabéns, você ajudou a recuperar 10 gatinhos! :)</Text>
-                </View>
-
-            </View>
+            </View>}
 
         </ScrollView>
       </View>

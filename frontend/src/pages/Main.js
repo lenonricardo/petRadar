@@ -35,6 +35,7 @@ function Main({ navigation }) {
   const [user, setUser] = useState({});
   const [userLogado, setUserLogado] = useState({});
   const [nivelDialog, setNivelDialog] = useState(false);
+  const [publicacao, setPublicacao] = useState(null)
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -43,6 +44,15 @@ function Main({ navigation }) {
 	const userData = async () => {
 		try {
 			const jsonValue = await AsyncStorage.getItem('@user')
+			return jsonValue
+		} catch (e) {
+			console.log(e)
+		}
+	}
+
+	const postData = async () => {
+		try {
+			const jsonValue = await AsyncStorage.getItem('@post')
 			return jsonValue
 		} catch (e) {
 			console.log(e)
@@ -62,24 +72,24 @@ function Main({ navigation }) {
 			})
 		}
 
-		navigation.addListener("didFocus", () => {
-			// setTimeout(() => {
-			// 	const post = navigation.getParam('publicacao')
-			// 	console.log(post)
+		navigation.addListener("didFocus", async () => {
+			// const pub = await postData()
 
-			// 	if (post) {
-			// 		setImage(post.image)
-			// 		setTitle(post.title)
-			// 		setDesc(post.description)
-			// 		setSituacao(post.situacao)
-			// 		setCoordAux({
-			// 			latitude: post.location.coordinates[1],
-			// 			longitude: post.location.coordinates[0]
-			// 		})
+			// setPublicacao(JSON.parse(pub))
+			// console.log(publicacao)
 
-			// 		setModalVisible(true)
-			// 	}
-			// }, 1000)
+			// if (Object.keys(publicacao).length > 0) {
+			// 	setImage(publicacao.image)
+			// 	setTitle(publicacao.title)
+			// 	setDesc(publicacao.description)
+			// 	setSituacao(publicacao.situacao)
+			// 	setCoordAux({
+			// 		latitude: publicacao.location.coordinates[1],
+			// 		longitude: publicacao.location.coordinates[0]
+			// 	})
+
+			// 	setModalVisible(true)
+			// }
     });
 
 		async function loadInitialPosion() {
@@ -180,7 +190,7 @@ function Main({ navigation }) {
 			console.log(dataUser.nivel)
 
 			setUserLogado(dataUser)
-			if (dataUser.nivel > 1) {
+			if (dataUser.nivel > userLogado.nivel && dataUser.nivel % 5 === 0) {
 				setNivelDialog(true)
 			}
 
@@ -193,13 +203,14 @@ function Main({ navigation }) {
 	}
 
 
+
 	return (
 		<>
 			<MapView provider="google" onRegionChangeComplete={handleRegionChanged} initialRegion={currentRegion} style={styles.map}>
 
 				{posts.map(post => {
 					return (
-						post.aprovado && !post.status &&  (
+						post.aprovado && !post.status && post.dislike < 10 && (
 							<Marker
 								key={post._id}
 								coordinate={{
@@ -238,7 +249,7 @@ function Main({ navigation }) {
 
 								>
 									<View style={styles.modalNew}>
-										<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${image}` }} />
+										<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${image}` }} />
 										<Text style={styles.dogName}>{title}</Text>
 										<Text style={styles.dogName}>{desc}</Text>
 										<Text style={styles.dogDesc}>{situacao}</Text>
@@ -260,7 +271,7 @@ function Main({ navigation }) {
 
 										<Text style={styles.userName}>{user.name}</Text>
 										<Text style={styles.userLocation}>{user.cidade}</Text>
-										<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${user.image}` }} />
+										<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${user.image}` }} />
 										<Provider>
 											<Portal>
 												<FAB.Group style={styles.opcoes}
@@ -291,7 +302,7 @@ function Main({ navigation }) {
 															icon: 'chat-processing',
 															label: 'Conversar',
 															color: '#e26a6a',
-															onPress: () => { navigation.navigate('Chat'); setModalVisible(!modalVisible) },
+															onPress: () => { navigation.navigate('Chat', {user: user}); setModalVisible(!modalVisible) },
 														},
 													]}
 													onStateChange={onStateChange}
@@ -314,7 +325,7 @@ function Main({ navigation }) {
 												</Dialog>
 											</Portal>
 										</Provider>
-										<TouchableOpacity onPress={() => { setNivelDialog(!modalVisible)} } style={styles.loadButton}>
+										<TouchableOpacity onPress={() => { setModalVisible(!modalVisible)} } style={styles.loadButton}>
 											<Text style={{ color: "#fff", fontWeight: "bold", fontSize: 20 }}>Fechar</Text>
 										</TouchableOpacity>
 									</View>

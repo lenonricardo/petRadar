@@ -57,7 +57,7 @@ router.put('/nivel/:userId', async (req, res) => {
 		const user = await User.findById(req.params.userId)
 		user.recuperados += 1
 
-		if (user.recuperados > 4) {
+		if (user.recuperados % 5 === 0) {
 			user.nivel += 1
 		}
 

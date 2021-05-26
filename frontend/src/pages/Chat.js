@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { YellowBox, View} from 'react-native';
+import { YellowBox, View, StyleSheet, Text, Image} from 'react-native';
 import Header from './header'
 import { GiftedChat } from 'react-native-gifted-chat'
 import io from "socket.io-client";
@@ -9,13 +9,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export function Chat({ navigation }) {
   const [messages, setMessages] = useState([]);
   const [id, setId] = useState('');
-  const socket = io("http://192.168.100.7:3333", { transports: ["websocket"] });
-  const user = '_55'
+  const [usuario, setUsuario] = useState('');
+  const socket = io("http://192.168.100.38:3333", { transports: ["websocket"] });
 
   useEffect(async () => {
 		const jsonValue = await AsyncStorage.getItem('@user')
 		const user = JSON.parse(jsonValue)
     setId(user._id)
+		setUsuario(navigation.getParam('user'))
 
     YellowBox.ignoreWarnings(['Setting a timer']);
 
@@ -32,7 +33,7 @@ export function Chat({ navigation }) {
     messages.forEach((msg)=>{
       console.log(msg)
       const { text, user } = msg;
-      const message = {_id: Math.random().toString() , text, user, createdAt: new Date().getTime() };
+      const message = {_id: user._id , text, user, createdAt: new Date().getTime() };
       socket.emit("chat message", message);
     })
 
@@ -42,6 +43,11 @@ export function Chat({ navigation }) {
   return (
     <View style={{flex: 1}}>
       <Header navigation={navigation} />
+			<View style={{ position: 'absolute', zIndex: 9999}}>
+				<Text style={styles.userName}>{usuario.name}</Text>
+				<Text style={styles.userLocation}>{usuario.cidade}</Text>
+				<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${usuario.image}` }} />
+			</View>
       <View style={{flex: 1}}>
         <GiftedChat
           messages={messages}
@@ -56,5 +62,17 @@ export function Chat({ navigation }) {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+	userName: {
+		fontWeight: 'bold',
+		color: '#63af92',
+		fontSize: 16,
+	},
+	userLocation: {
+		color: '#63af92',
+	},
+
+})
 
 export default Chat

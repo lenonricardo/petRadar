@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { DataTable, Button, Paragraph, Dialog, Portal, Provider as PaperProvider, Surface } from 'react-native-paper';
 import { MaterialIcons } from '@expo/vector-icons'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { View
 	, StyleSheet
@@ -26,7 +27,7 @@ import Header from './header'
 function Admin ({ navigation }) {
 
 	const [posts, setPosts] = useState([])
-	const [publicacao, setPublicacao] = useState([])
+	const [publicacao, setPublicacao] = useState(null)
 	const [currentPost, setCurrentPost] = useState([])
 	const [visible, setVisible] = React.useState(false);
 
@@ -63,6 +64,13 @@ function Admin ({ navigation }) {
 		loadPosts()
 	}
 
+	async function redirectHome (post, navigation) {
+		const jsonValue = JSON.stringify(post)
+		await AsyncStorage.setItem('@post', jsonValue)
+
+		navigation.navigate('Home')
+	}
+
 	return (
 		<PaperProvider>
 			<Header navigation={navigation} />
@@ -72,16 +80,17 @@ function Admin ({ navigation }) {
 					<View style={styles.container} >
 						{posts.map(post => {
 							return (
-									<TouchableOpacity
-										key={post._id}
-										onPress={() => {
-										setPublicacao(post)
-										navigation.navigate('Home', { publicacao } )
-									}}>
-										<Surface style={styles.surface}>
-												<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${post.image}` }} />
-										</Surface>
-									</TouchableOpacity>
+									post.aprovado && !post.status && post.dislike < 10 &&  (
+										<TouchableOpacity
+											key={post._id}
+											onPress={() => {
+												redirectHome(post, navigation)
+										}}>
+											<Surface style={styles.surface}>
+													<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${post.image}` }} />
+											</Surface>
+										</TouchableOpacity>
+								)
 							)
 						})}
 					</View>

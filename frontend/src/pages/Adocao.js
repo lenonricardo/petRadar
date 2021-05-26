@@ -28,6 +28,7 @@ function Adocao ({ navigation }) {
 	const [posts, setPosts] = useState([])
 	const [currentPost, setCurrentPost] = useState([])
 	const [visible, setVisible] = React.useState(false);
+	const [userPost, setUserPost] = React.useState({});
 
   const showDialog = () => setVisible(true);
 
@@ -37,12 +38,17 @@ function Adocao ({ navigation }) {
 	useEffect(() => {
 		loadPosts()
 
+		navigation.addListener("didFocus", async () => {
+			hideDialog()
+			loadPosts()
+		})
+
 	}, [])
 
 	async function loadPosts() {
-		const response = await api.get('/posts')
+		const response = await api.get('/adocao')
 
-		setPosts(response.data.posts)
+		setPosts(response.data.anuncios)
 	}
 
 	async function handleSubmit() {
@@ -69,8 +75,9 @@ function Adocao ({ navigation }) {
 				<ScrollView style={{width:'100%'}}>
 					<DataTable>
 						<DataTable.Header>
+							<DataTable.Title></DataTable.Title>
 							<DataTable.Title>Animal</DataTable.Title>
-							<DataTable.Title>Descrição</DataTable.Title>
+							<DataTable.Title>Título</DataTable.Title>
 						</DataTable.Header>
 
 						{posts.map(post => {
@@ -82,9 +89,11 @@ function Adocao ({ navigation }) {
 											showDialog()
 											console.log(post)
 											setCurrentPost(post)
+											setUserPost(post.user)
 										}}>
+										<DataTable.Cell><Image style={styles.imageANimal} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${post.image}` }} /> </DataTable.Cell>
 										<DataTable.Cell><Image style={styles.marcador} source={post.animal == 'dog' ? dog : cat} /></DataTable.Cell>
-										<DataTable.Cell>{post.description}</DataTable.Cell>
+										<DataTable.Cell>{post.title}</DataTable.Cell>
 									</DataTable.Row>
 								)
 							)
@@ -101,18 +110,32 @@ function Adocao ({ navigation }) {
 					</DataTable>
 				</ScrollView>
 				<Portal>
-					<Dialog visible={visible} onDismiss={hideDialog}>
-						<Dialog.Title style={styles.title}>Animal</Dialog.Title>
-						<Dialog.Content>
-							<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${currentPost.image}` }} />
-							<Text style={styles.dogName}>{currentPost.description}</Text>
-							<Text style={styles.dogDesc}>{currentPost.aprovado}</Text>
-						</Dialog.Content>
-						<Dialog.Actions>
-							<Button onPress={hideDialog}>Cancelar</Button>
-							<Button onPress={() => handleSubmit()}>Aprovar</Button>
-						</Dialog.Actions>
-					</Dialog>
+					{ currentPost &&
+						<Dialog visible={visible} onDismiss={hideDialog}>
+							<Dialog.Title style={styles.title}><Image style={styles.marcador} source={currentPost.animal == 'dog' ? dog : cat} /></Dialog.Title>
+							<Dialog.Content>
+								<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${currentPost.image}` }} />
+								<Text style={styles.dogName}>{currentPost.title}</Text>
+								<Text style={styles.dogDesc}>Descrição: {currentPost.description}</Text>
+								<Text style={styles.dogDesc}>Porte: {currentPost.porte}</Text>
+								<Text style={styles.dogDesc}>Raça: {currentPost.raca}</Text>
+								<View style={styles.userData}>
+									<Image style={styles.profileImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${userPost.image}` }} />
+									<Text style={styles.userName}>{userPost.name}</Text>
+									<Text style={styles.userLocation}>{userPost.cidade}</Text>
+									<TouchableOpacity onPress={() => {
+										hideDialog()
+										navigation.navigate('Chat', {user: userPost})
+									}} style={styles.chatButton}>
+										<MaterialIcons name="chat" size={20} color="#FFF" />
+									</TouchableOpacity>
+								</View>
+							</Dialog.Content>
+							<Dialog.Actions>
+								<Button onPress={hideDialog}>Fechar</Button>
+							</Dialog.Actions>
+						</Dialog>
+					}
 				</Portal>
 				<TouchableOpacity onPress={() => {
 					navigation.navigate('Anuncio')
@@ -145,6 +168,12 @@ const styles = StyleSheet.create({
 	marcador: {
 		width: 37,
 		height: 37,
+	},
+
+	imageANimal: {
+		width: 70,
+		height: 70,
+		borderRadius: 40,
 	},
 
 	dogImage: {
@@ -188,6 +217,41 @@ const styles = StyleSheet.create({
 		right: 20,
 		zIndex: 5,
 		flexDirection: 'row',
+	},
+	chatButton: {
+		width: 60,
+		height: 60,
+		backgroundColor: '#71C7A6',
+		borderRadius: 40,
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginLeft: 120,
+		right: 20,
+		zIndex: 5,
+		flexDirection: 'row',
+	},
+
+
+	userData: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		marginTop: 30,
+		marginBottom: -20
+	},
+
+	userName: {
+		fontWeight: 'bold',
+		color: '#63af92',
+		fontSize: 16,
+	},
+	userLocation: {
+		color: '#63af92',
+	},
+	profileImage: {
+		width: 60,
+		height: 60,
+		borderRadius: 100,
+		marginRight: 10
 	},
 })
 

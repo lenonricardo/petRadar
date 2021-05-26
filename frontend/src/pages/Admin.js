@@ -109,7 +109,7 @@ function Admin ({ navigation }) {
 					<Dialog visible={visible} onDismiss={hideDialog}>
 						<Dialog.Title style={styles.title}>Animal</Dialog.Title>
 						<Dialog.Content>
-							<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.7:3333/files/${currentPost.image}` }} />
+							<Image style={styles.dogImage} resizeMode="cover" source={{ uri: `http://192.168.100.38:3333/files/${currentPost.image}` }} />
 							<Text style={styles.dogName}>{currentPost.description}</Text>
 							<Text style={styles.dogDesc}>{currentPost.aprovado}</Text>
 						</Dialog.Content>
